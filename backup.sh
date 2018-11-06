@@ -1,0 +1,1 @@
+/usr/local/bin/php /F/sys/Forca/.php /tool/local/backup?error-log=backup.error.log

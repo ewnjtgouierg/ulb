@@ -1,0 +1,47 @@
+#!/usr/local/bin/php
+<?
+
+$subdir = 'Forca';
+
+exec($cmd = "git diff $subdir", $out);
+foreach ($out as $line)
+	if (preg_match("/^(\+|\-)Subproject commit ([^\s]+)$/", $line, $match))
+		$commits[$match[1]] = $match[2];
+
+if (!$commits['-'] || !$commits['+'])
+	throw new Exception("cannot parse results of '$cmd':\n".print_r($out, 1));
+
+function short($hash)
+	{
+		return substr($hash, 0, 7);
+	}
+
+/*
+
+chdir($subdir);
+
+exec("git log ".$commits['-']."..".$commits['+'], $out1);
+
+foreach ($out1 as $line)
+	{
+		list($hash, $desc) = explode(' ', $line, 2);
+		$message[] = short($hash).': '.$desc;
+	}
+
+chdir('..');
+
+$message = "#updated $subdir ".short($commits['-'])." -> ".short($commits['+']).":
+	".join("\n\t", $message)."\n";
+
+*/
+
+$message = "$subdir ".short($commits['-'])." -> ".short($commits['+']);
+if ($desc = $_SERVER['argv'][1]) $message = "$desc ($message)";
+
+exec("git add $subdir", $output1);
+
+echo join("\n", $output1);
+
+exec("git commit -m \"$message\"", $output2);
+
+echo join("\n", $output2);

@@ -1,0 +1,15 @@
+#!/usr/local/bin/php
+<?
+
+$db = $_SERVER['argv'][1];
+$targetDB = $_SERVER['argv'][2] ?? $db;
+
+if (!$db) exit;
+
+$dir = sys_get_temp_dir();
+$workDir = "$dir/$db";
+if (is_dir($workDir)) exec("rm -rf $workDir");
+mkdir($workDir);
+exec("unzip $dir/$db.zip -d $workDir");
+exec("cd $workDir && mysql $db < $db.sql");
+exec("rm -rf $workDir");

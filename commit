@@ -1,0 +1,15 @@
+#!/usr/local/bin/php
+<?
+
+if ($_SERVER['argc'] > 2)
+	{
+		$msg = array_pop($_SERVER['argv']);
+		unset($_SERVER['argv'][0]);
+		exec ("git add ".join(' ', $_SERVER['argv']));
+	}
+else
+	{
+		exec ("git add -A");
+		$msg = $_SERVER['argv'][1];
+	}
+exec ("git commit -m \"$msg\"");

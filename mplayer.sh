@@ -1,0 +1,1 @@
+mplayer -input file="/tmp/mplayer_fifo" "$1"
