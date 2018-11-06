@@ -1,2 +1,0 @@
-#!/bin/sh
-ssh-copy-id -p 22 root@172.104.136.91
