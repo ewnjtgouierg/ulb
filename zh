@@ -1,2 +1,0 @@
-#!/bin/sh
-ssh foxof.fr -p 1293 -l root

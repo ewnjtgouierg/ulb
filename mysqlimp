@@ -11,5 +11,5 @@ $workDir = "$dir/$db";
 if (is_dir($workDir)) exec("rm -rf $workDir");
 mkdir($workDir);
 exec("unzip $dir/$db.zip -d $workDir");
-exec("cd $workDir && mysql $db < $db.sql");
+exec("cd $workDir && mysql $targetDB < $db.sql");
 exec("rm -rf $workDir");
