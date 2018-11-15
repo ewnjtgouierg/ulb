@@ -1,7 +1,11 @@
 #!/usr/local/bin/php
 <?
 
-if ($_SERVER['argc'] > 2)
+if ($_SERVER['argv'][1] === '--noAutoAdd')
+	{
+		$msg = $_SERVER['argv'][2];
+	}
+elseif ($_SERVER['argc'] > 2)
 	{
 		$msg = array_pop($_SERVER['argv']);
 		unset($_SERVER['argv'][0]);
