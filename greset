@@ -1,0 +1,9 @@
+#!/usr/local/bin/php
+<?
+
+if ($_SERVER['argv'][1] === '--hard')
+	{
+		passthru ("git reset --hard");
+		passthru ("chmod -R g+w .");
+	}
+else echo "pass argument --hard to perform git reset --hard\n";
