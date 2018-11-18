@@ -11,5 +11,6 @@ $workDir = "$dir/$db";
 if (is_dir($workDir)) exec("rm -rf $workDir");
 mkdir($workDir);
 exec("unzip $dir/$db.zip -d $workDir");
+exec("mysql -e 'DROP DATABASE IF EXISTS $targetDB; CREATE DATABASE $targetDB DEFAULT CHARSET utf8;'");
 exec("cd $workDir && mysql $targetDB < $db.sql");
 exec("rm -rf $workDir");
