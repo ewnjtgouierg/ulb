@@ -1,4 +1,4 @@
 #!/usr/local/bin/php
 <?
 
-passthru("cd /usr/local/bin && ln -s ".__DIR__."/* .");
+passthru("cd /usr/local/bin && ln -s ".dirname(__FILE__)."/* .");
