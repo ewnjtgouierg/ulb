@@ -1,1 +1,4 @@
-cd /usr/local/bin && ln -s /F/ulb/* .
+#!/usr/local/bin/php
+<?
+
+passthru("cd /usr/local/bin && ln -s ".__DIR__."/* .");
