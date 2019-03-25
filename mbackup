@@ -1,0 +1,37 @@
+#!/usr/local/bin/php
+<?
+
+// full backup of ALL databases only! otherwise restoring becomes much more complex
+
+foreach ($_SERVER['argv'] as $t)
+	{
+		list($name, $val) = explode('=', $t, 2);
+		$$name = $val;
+	}
+
+$backupDir = '/backup';
+
+$lastBackup = "$backupDir/last";
+$currentBackup = "$backupDir/tmp";
+
+$lastBackupExists = is_dir($lastBackup);
+
+$cmd = "mariabackup --backup --user=root --target-dir=$currentBackup";
+
+if ($lastBackupExists) $cmd .= " --incremental-basedir=$lastBackup";
+
+function cmd($cmd)
+	{
+		// echo "$cmd\n";
+		passthru($cmd);
+	}
+
+cmd($cmd);
+
+$time = filemtime($currentBackup);
+$zipName = date('d.n.Y_G.i', $time).'.zip';
+cmd("zip -rT $backupDir/$zipName $currentBackup");
+
+if ($lastBackupExists) cmd("rm -rf $lastBackup");
+
+cmd("mv $currentBackup $lastBackup");
