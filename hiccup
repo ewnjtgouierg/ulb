@@ -1,0 +1,41 @@
+#!/usr/local/bin/php
+<?
+
+function cmd($cmd)
+	{
+		// echo "$cmd\n";
+		passthru($cmd);
+	}
+
+$db = $_SERVER['argv'][1];
+
+if (!$db) exit;
+
+$backupDir = "/backup/$db";
+if (!is_dir($backupDir)) mkdir($backupDir);
+cmd("chmod o+xw $backupDir");
+
+cmd("mysqldump --tab=$backupDir --ignore-table=$db.Language --ignore-table=$db.Cfg --skip-dump-date --fields-terminated-by=',' $db");
+$files = scandir($backupDir);
+$allSQL = "$backupDir/".($allSQLName = "$db.sql");
+$fp = fopen($allSQL.'.all', 'w');
+fwrite($fp, "SET FOREIGN_KEY_CHECKS=0;\n");
+
+foreach ($files as $file)
+	if (($pathinfo = pathinfo($file))['extension'] === 'sql'
+			&& $pathinfo['basename'] != $allSQLName)
+		{
+			$createTable = file_get_contents("$backupDir/$file");
+			$createTable = preg_replace("/AUTO_INCREMENT=\d+\s*/", '', $createTable);
+			fwrite($fp, $createTable."\n");
+			$tableName = $pathinfo['filename'];
+			$dataFile = $pathinfo['filename'].'.txt';
+			fwrite($fp, "LOAD DATA INFILE '/tmp/$db/$dataFile' INTO TABLE `$tableName` FIELDS TERMINATED BY ',';\n");
+		}
+
+fwrite($fp, "SET FOREIGN_KEY_CHECKS=1;");
+fclose($fp);
+
+cmd("rm -f $backupDir/*.sql");
+
+cmd("mv $allSQL.all $allSQL");
