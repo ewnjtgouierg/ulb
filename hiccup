@@ -39,3 +39,6 @@ fclose($fp);
 cmd("rm -f $backupDir/*.sql");
 
 cmd("mv $allSQL.all $allSQL");
+
+cmd("cd $backupDir && commit \"".date('d.n.Y G:i')."\"");
+cmd("cd $backupDir && git push");
