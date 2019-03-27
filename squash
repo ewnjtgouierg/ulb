@@ -1,0 +1,12 @@
+#!/usr/local/bin/php
+<?
+
+git checkout $from
+git checkout -b sq
+git merge --squash $to
+commit "$fromName-$toName"
+git rebase --onto sq $to $masterHead
+git update-ref refs/heads/sq HEAD
+git checkout sq
+git branch -D master
+git branch -m sq master
