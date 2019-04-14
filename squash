@@ -1,6 +1,8 @@
 #!/usr/local/bin/php
 <?
 
+git log --after=date("Y-n-d 00:00", $from) --before=date("Y-n-d 00:00", $to)
+
 git checkout $from
 git checkout -b sq
 git merge --squash $to
