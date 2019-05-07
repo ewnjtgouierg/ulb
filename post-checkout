@@ -1,0 +1,6 @@
+#!/usr/local/bin/php
+<?
+
+$dir = $_SERVER['PWD'];;
+if ($subdir = $_SERVER['GIT_PREFIX']) $dir = explode('/'.rtrim($subdir, '/'), $dir, 2)[0];
+exec("chown -R www-data:www-data $dir");
