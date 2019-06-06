@@ -1,0 +1,22 @@
+#!/usr/local/bin/php
+<?
+
+if ($_SERVER['argc'] < 2)
+	{
+		?>Use same as find, but pass a date instead of a path as a value for the --newer
+<?
+		exit;
+	}
+
+while ($t = next($_SERVER['argv']))
+	{
+		$args[] = $t;
+		if ($t == '-newer')
+			{
+				$time = next($_SERVER['argv']);
+				exec('touch -d"$(date --date="'.$time.'" +"%Y-%m-%d %H:%M")" /tmp/tmp');
+				$args[] = '/tmp/tmp';
+			}
+	}
+
+passthru("find ".join(' ', $args));
