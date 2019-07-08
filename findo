@@ -14,8 +14,9 @@ while ($t = next($_SERVER['argv']))
 		if ($t == '-newer')
 			{
 				$time = next($_SERVER['argv']);
-				exec('touch -d"$(date --date="'.$time.'" +"%Y-%m-%d %H:%M")" /tmp/tmp');
-				$args[] = '/tmp/tmp';
+				$path = "/tmp/tmp".(++$counter);
+				exec('touch -d"$(date --date="'.$time.'" +"%Y-%m-%d %H:%M")" '.$path);
+				$args[] = $path;
 			}
 	}
 
