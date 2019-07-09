@@ -7,38 +7,43 @@ function cmd($cmd)
 		passthru($cmd);
 	}
 
+if ($_SERVER['argc']<3) exit("\nUsage: hiccup <dbname> <targetDir>\n\n\ttagetDir must be a git repo, commit & git push is ran in it after backup\n\n");
+
 $db = $_SERVER['argv'][1];
+$backupDir = $_SERVER['argv'][2];
+if (!is_dir($backupDir)) exit("\n'".$_SERVER['argv'][2]."' is not a directory\n\n");
 
-if (!$db) exit;
-
-$backupDir = "/backup/$db";
-if (!is_dir($backupDir)) mkdir($backupDir);
 cmd("chmod o+xw $backupDir");
 
 cmd("mysqldump --tab=$backupDir --ignore-table=$db.Language --ignore-table=$db.Cfg --skip-dump-date --fields-terminated-by=',' $db");
-$files = scandir($backupDir);
-$allSQL = "$backupDir/".($allSQLName = "$db.sql");
-$fp = fopen($allSQL.'.all', 'w');
-fwrite($fp, "SET FOREIGN_KEY_CHECKS=0;\n");
 
-foreach ($files as $file)
-	if (($pathinfo = pathinfo($file))['extension'] === 'sql'
-			&& $pathinfo['basename'] != $allSQLName)
-		{
-			$createTable = file_get_contents("$backupDir/$file");
-			$createTable = preg_replace("/AUTO_INCREMENT=\d+\s*/", '', $createTable);
-			fwrite($fp, $createTable."\n");
-			$tableName = $pathinfo['filename'];
-			$dataFile = $pathinfo['filename'].'.txt';
-			fwrite($fp, "LOAD DATA INFILE '/tmp/$db/$dataFile' INTO TABLE `$tableName` FIELDS TERMINATED BY ',';\n");
-		}
+$sqlPath = "$backupDir/.sql";
+$sqlPath_masked = "$sqlPath.masked";
 
-fwrite($fp, "SET FOREIGN_KEY_CHECKS=1;");
-fclose($fp);
+cmd("mysqldump --tz-utc -d --skip-comments --ignore-table=$db.Language --ignore-table=$db.Cfg --skip-dump-date $db > $sqlPath_masked");
+
+$sql = file_get_contents($sqlPath_masked);
+$sql = preg_replace("/AUTO_INCREMENT=\d+\s*/", '', $sql);
+
+$sql = "SET FOREIGN_KEY_CHECKS=0;\n$sql";
+
+foreach (scandir($backupDir) as $fileName)
+	{
+		$pathinfo = pathinfo($fileName);
+		if ($pathinfo['extension'] === 'txt')
+			{
+				$tableName = $pathinfo['filename'];
+				$sql .= "LOAD DATA LOCAL INFILE '$fileName' INTO TABLE `$tableName` FIELDS TERMINATED BY ',';\n";
+			}
+	}
+
+$sql .= "SET FOREIGN_KEY_CHECKS=1;\n";
+
+file_put_contents($sqlPath_masked, $sql);
 
 cmd("rm -f $backupDir/*.sql");
 
-cmd("mv $allSQL.all $allSQL");
+cmd("mv $sqlPath_masked $sqlPath");
 
 cmd("cd $backupDir && commit \"".date('d.n.Y G:i')."\"");
 cmd("cd $backupDir && git push");
