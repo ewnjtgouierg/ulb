@@ -31,6 +31,7 @@ foreach (scandir($backupDir) as $fileName)
 
 				$tableName = $pathinfo['filename'];
 				$dataFileName = $tableName . '.txt';
+				$sql .= "SET TIME_ZONE='+00:00';\n";
 				$sql .= "LOAD DATA LOCAL INFILE '$dataFileName' INTO TABLE `$tableName` FIELDS TERMINATED BY ',';\n";
 
 				file_put_contents($path, $sql);
