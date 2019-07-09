@@ -15,35 +15,29 @@ if (!is_dir($backupDir)) exit("\n'".$_SERVER['argv'][2]."' is not a directory\n\
 
 cmd("chmod o+xw $backupDir");
 
-cmd("mysqldump --tab=$backupDir --ignore-table=$db.Language --ignore-table=$db.Cfg --skip-dump-date --fields-terminated-by=',' $db");
-
-$sqlPath = "$backupDir/.sql";
-$sqlPath_masked = "$sqlPath.masked";
-
-cmd("mysqldump --tz-utc -d --skip-comments --ignore-table=$db.Language --ignore-table=$db.Cfg --skip-dump-date $db > $sqlPath_masked");
-
-$sql = file_get_contents($sqlPath_masked);
-$sql = preg_replace("/AUTO_INCREMENT=\d+\s*/", '', $sql);
-
-$sql = "SET FOREIGN_KEY_CHECKS=0;\n$sql";
+cmd("mysqldump --tz-utc --skip-comments --tab=$backupDir --ignore-table=$db.Language --ignore-table=$db.Cfg --skip-dump-date --fields-terminated-by=',' $db");
 
 foreach (scandir($backupDir) as $fileName)
 	{
 		$pathinfo = pathinfo($fileName);
-		if ($pathinfo['extension'] === 'txt')
+		if ($pathinfo['extension'] === 'sql')
 			{
+
+				$sql = file_get_contents($path = "$backupDir/$fileName");
+
+				$sql = preg_replace("/AUTO_INCREMENT=\d+\s*/", '', $sql);
+
+				$sql = "SET FOREIGN_KEY_CHECKS=0;\n" . $sql;
+
 				$tableName = $pathinfo['filename'];
-				$sql .= "LOAD DATA LOCAL INFILE '$fileName' INTO TABLE `$tableName` FIELDS TERMINATED BY ',';\n";
+				$dataFileName = $tableName . '.txt';
+				$sql .= "LOAD DATA LOCAL INFILE '$dataFileName' INTO TABLE `$tableName` FIELDS TERMINATED BY ',';\n";
+
+				file_put_contents($path, $sql);
+
 			}
+
 	}
-
-$sql .= "SET FOREIGN_KEY_CHECKS=1;\n";
-
-file_put_contents($sqlPath_masked, $sql);
-
-cmd("rm -f $backupDir/*.sql");
-
-cmd("mv $sqlPath_masked $sqlPath");
 
 cmd("cd $backupDir && commit \"".date('d.n.Y G:i')."\"");
 cmd("cd $backupDir && git push");
