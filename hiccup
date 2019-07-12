@@ -17,6 +17,8 @@ cmd("chmod o+xw $backupDir");
 
 cmd("mysqldump --skip-comments --tab=$backupDir --ignore-table=$db.Language --ignore-table=$db.Cfg --skip-dump-date --fields-terminated-by=',' $db");
 
+$limit = 16*1024*1024;
+
 foreach (scandir($backupDir) as $fileName)
 	{
 		$pathinfo = pathinfo($fileName);
@@ -31,8 +33,20 @@ foreach (scandir($backupDir) as $fileName)
 
 				$tableName = $pathinfo['filename'];
 				$dataFileName = $tableName . '.txt';
+				if (($fileSize = filesize($dataFilePath = "$backupDir/$dataFileName")) > $limit)
+					{
+						$n = ceil($fileSize / $limit);
+						$suffixSize = 6;
+						cmd("split -n l/$n -d -a $suffixSize $dataFilePath $dataFilePath. && rm $dataFilePath");
+						$dataFileNames = [];
+						for ($i=0; $i<$n; $i++)
+							$dataFileNames[] = "$dataFileName.".str_pad($i, $suffixSize, '0', STR_PAD_LEFT);
+					}
+				else $dataFileNames = [$dataFileName];
 				$sql .= "SET TIME_ZONE='+00:00';\n";
-				$sql .= "LOAD DATA LOCAL INFILE '$dataFileName' INTO TABLE `$tableName` FIELDS TERMINATED BY ',';\n";
+				foreach ($dataFileNames as $dataFileName)
+						$sql .=
+					"LOAD DATA LOCAL INFILE '$dataFileName' INTO TABLE `$tableName` FIELDS TERMINATED BY ',';\n";
 
 				file_put_contents($path, $sql);
 
