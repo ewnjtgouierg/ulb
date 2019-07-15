@@ -15,11 +15,11 @@ if (!is_dir($backupDir)) exit("\n'".$_SERVER['argv'][2]."' is not a directory\n\
 
 cmd("chmod o+xw $backupDir");
 
-cmd("rm $backupDir/*.txt");
+cmd("rm $backupDir/*");
 
 cmd("mysqldump --skip-comments --tab=$backupDir --ignore-table=$db.Language --ignore-table=$db.Cfg --skip-dump-date --fields-terminated-by=',' $db");
 
-$limit = 16*1024*1024;
+$limit = 256*1024;
 
 foreach (scandir($backupDir) as $fileName)
 	{
@@ -38,9 +38,8 @@ foreach (scandir($backupDir) as $fileName)
 
 				if (($fileSize = filesize($dataFilePath = "$backupDir/$dataFileName")) > $limit)
 					{
-						$n = ceil($fileSize / $limit);
 						$suffixSize = 6;
-						cmd("split -n l/$n -d -a $suffixSize $dataFilePath $dataFilePath. && rm $dataFilePath");
+						cmd("split -l $limit -d -a $suffixSize $dataFilePath $dataFilePath. && rm $dataFilePath");
 						$dataFileNames = [];
 						for ($i=0; $i<$n; $i++)
 							$dataFileNames[] = "$dataFileName.".str_pad($i, $suffixSize, '0', STR_PAD_LEFT);
