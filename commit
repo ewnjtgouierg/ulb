@@ -1,6 +1,12 @@
 #!/usr/local/bin/php
 <?
 
+function cmd($cmd)
+	{
+		passthru($cmd);
+		// echo $cmd."\n";
+	}
+
 if ($_SERVER['argv'][1] === '--noAutoAdd')
 	{
 		$msg = $_SERVER['argv'][2];
@@ -9,11 +15,13 @@ elseif ($_SERVER['argc'] > 2)
 	{
 		$msg = array_pop($_SERVER['argv']);
 		unset($_SERVER['argv'][0]);
-		exec ("git add ".join(' ', $_SERVER['argv']));
+		cmd ("git add ".join(' ', $_SERVER['argv']));
 	}
 else
 	{
-		exec ("git add -A");
+		exec("git config status.showUntrackedFiles", $output);
+		if (join($output) == 'no') cmd("git add -u");
+		else cmd ("git add -A");
 		$msg = $_SERVER['argv'][1];
 	}
-exec ("git commit -m \"$msg\"");
+cmd ("git commit -m \"$msg\"");
