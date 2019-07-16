@@ -3,8 +3,12 @@
 
 function cmd($cmd)
 	{
-		// echo "$cmd\n";
-		passthru($cmd);
+		exec("$cmd 2>&1", $output, $retVal);
+		if ($retVal)
+			{
+				echo join($output)."\n";
+				exit;
+			}
 	}
 
 if ($_SERVER['argc']<3) exit("\nUsage: hiccup <dbname> <targetDir>\n\n\ttagetDir must be a git repo, commit & git push is ran in it after backup\n\n");
