@@ -1,0 +1,5 @@
+#!/usr/local/bin/php
+<?
+
+if (file_exists($cmsPath = dirname($_SERVER['SCRIPT_FILENAME'])."/../../Forca/.php"))
+	passthru("php $cmsPath form/sync/post-merge");
