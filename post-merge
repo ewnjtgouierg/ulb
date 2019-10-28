@@ -2,4 +2,4 @@
 <?
 
 if (file_exists($cmsPath = dirname($_SERVER['SCRIPT_FILENAME'])."/../../Forca/.php"))
-	passthru("php $cmsPath form/sync/post-merge");
+	passthru("php $cmsPath upgrade/post-merge");
