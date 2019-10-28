@@ -1,7 +1,9 @@
 #!/usr/local/bin/php
 <?
 
-$repoRoot = dirname($_SERVER['SCRIPT_FILENAME'])."/../..");
-if (file_exists($cmsPath = "$repoRoot/Forca/.php")
-		|| file_exists($cmsPath = "$repoRoot/../Forca/.php"))
-	passthru("php $cmsPath upgrade/post-merge");
+$hooksDir = dirname($_SERVER['SCRIPT_FILENAME']);
+$isForca = strpos($hooksDir, $str = '.git/modules/Forca/hooks') === strlen($hooksDir) - strlen($str);
+$repoRoot = $isForca ? "$hooksDir/../../../.." : "$hooksDir/../..";
+
+if (file_exists($cmsPath = "$repoRoot/Forca/.php"))
+	passthru("php $cmsPath upgrade/post-merge isForca=$isForca");
