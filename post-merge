@@ -1,5 +1,7 @@
 #!/usr/local/bin/php
 <?
 
-if (file_exists($cmsPath = dirname($_SERVER['SCRIPT_FILENAME'])."/../../Forca/.php"))
+$repoRoot = dirname($_SERVER['SCRIPT_FILENAME'])."/../..");
+if (file_exists($cmsPath = "$repoRoot/Forca/.php")
+		|| file_exists($cmsPath = "$repoRoot/../Forca/.php"))
 	passthru("php $cmsPath upgrade/post-merge");
