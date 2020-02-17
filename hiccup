@@ -21,7 +21,7 @@ cmd("chmod o+xw $backupDir");
 
 cmd("rm $backupDir/* || true");
 
-cmd("mysqldump --skip-comments --tab=$backupDir --ignore-table=$db.Language --ignore-table=$db.Cfg --skip-dump-date --fields-terminated-by=',' $db");
+cmd("mysqldump --skip-comments --tab=$backupDir --ignore-table=$db.Language --ignore-table=$db.Cfg --ignore-table=$db.Image_Watermark_Tool --skip-dump-date --fields-terminated-by=',' $db");
 
 $limit = 256*1024;
 
