@@ -1,0 +1,12 @@
+#!/usr/local/bin/php
+<?
+
+exec("service mysql status", $output, $returnValue);
+if ($returnValue != 0)
+	{
+		$fp = fopen('/var/log/mysql.restart.log', 'a');
+		fwrite($fp, date('d/m/Y G:i')." mysql is down, restarting...");
+		exec("service mysql restart");
+		exec("service mysql status", $output, $returnValue);
+		fwrite($fp, ' ' . date('G:i') . (($returnValue != 0) ? ' failed' : ' mysql is now running') . "\n");
+	}
