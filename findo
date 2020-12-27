@@ -3,7 +3,12 @@
 
 if ($_SERVER['argc'] < 2)
 	{
-		?>Use same as find, but pass a date instead of a path as a value for the --newer
+		?>Use same as find, but pass a date instead of a path as a value for the -newer
+
+Example:
+
+findo . -newer 2020-01-01
+
 <?
 		exit;
 	}
