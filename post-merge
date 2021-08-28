@@ -11,7 +11,7 @@ $dir = $hooksDir = dirname($_SERVER['SCRIPT_FILENAME']);
 
 while ($dir = dirname($dir))
 	{
-		$isForca &= basename($dir) == 'Forca';
+		$isForca |= basename($dir) == 'Forca';
 		if (is_dir("$dir/.git"))
 			{
 				$repoDir = $dir;
