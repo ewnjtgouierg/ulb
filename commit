@@ -4,24 +4,33 @@
 function cmd($cmd)
 	{
 		passthru($cmd);
-		// echo $cmd."\n";
 	}
 
-if ($_SERVER['argv'][1] === '--noAutoAdd')
+array_shift($_SERVER['argv']);
+
+while ($arg = array_shift($_SERVER['argv']))
 	{
-		$msg = $_SERVER['argv'][2];
+		if (strpos($arg, '-') === 0)
+			$options[trim($arg, '-')] = true;
+		else
+			$notOptions[] = $arg;
 	}
-elseif ($_SERVER['argc'] > 2)
+
+while ($t = array_shift($notOptions))
 	{
-		$msg = array_pop($_SERVER['argv']);
-		unset($_SERVER['argv'][0]);
-		cmd ("git add ".join(' ', $_SERVER['argv']));
+		if (count($notOptions)) $paths[] = $t;
+		else $msg = $t;
 	}
-else
+
+$git = "git";
+if ($options['common']) $git .= ' --git-dir=/.common';
+
+if ($paths) cmd("$git add ".join(' ', $paths));
+elseif (!$options['noAutoAdd'])
 	{
-		exec("git config status.showUntrackedFiles", $output);
-		if (join($output) == 'no') cmd("git add -u");
-		else cmd ("git add -A");
-		$msg = $_SERVER['argv'][1];
+		exec("$git config status.showUntrackedFiles", $output);
+		if (join($output) == 'no') cmd("$git add -u");
+		else cmd("$git add -A");
 	}
-cmd ("git commit -m \"$msg\"");
+
+cmd("$git commit -m \"$msg\"");
