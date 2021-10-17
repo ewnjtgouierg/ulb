@@ -25,7 +25,7 @@ while ($t = array_shift($notOptions))
 $git = "git";
 if ($options['common']) $git .= ' --git-dir=/.common';
 
-if ($paths) cmd("$git add ".join(' ', $paths));
+if ($paths) cmd("$git add \"".join('" "', $paths).'"');
 elseif (!$options['noAutoAdd'])
 	{
 		exec("$git config status.showUntrackedFiles", $output);
