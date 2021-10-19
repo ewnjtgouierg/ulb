@@ -10,7 +10,7 @@ array_shift($_SERVER['argv']);
 
 while ($arg = array_shift($_SERVER['argv']))
 	{
-		if (strpos($arg, '-') === 0)
+		if (strpos($arg, '-') === 0 && count($_SERVER['argv']))
 			$options[trim($arg, '-')] = true;
 		else
 			$notOptions[] = $arg;
