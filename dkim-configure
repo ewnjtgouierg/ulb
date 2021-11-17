@@ -1,0 +1,52 @@
+domain=$1
+if [ -z "$domain" ]
+then
+	printf "usage: dkim-configure <domain>\n"
+	exit;
+fi
+
+apt update
+apt install -y opendkim opendkim-tools
+
+export LC_ALL="en_US.UTF-8"
+
+mkdir /etc/opendkim && mkdir /etc/opendkim/keys
+
+opendkim-genkey -D /etc/opendkim/keys -d $domain -s default
+
+chown -R opendkim:opendkim /etc/opendkim/keys && chmod 640 /etc/opendkim/keys/default.private && chmod 644 /etc/opendkim/keys/default.txt
+
+mv /etc/opendkim.conf /etc/opendkim.conf.default
+
+cat > /etc/opendkim.conf <<- EOS
+Syslog			yes
+UMask			007
+Domain			$domain
+KeyFile		/etc/opendkim/keys/default.private
+Selector		default
+# default._domainkey.$domain
+Socket                  inet:8892@localhost
+PidFile               /var/run/opendkim/opendkim.pid
+OversignHeaders		From
+TrustAnchorFile       /usr/share/dns/root.key
+UserID                opendkim
+ExternalIgnoreList      refile:/etc/opendkim/TrustedHosts
+InternalHosts           refile:/etc/opendkim/TrustedHosts
+KeyTable                refile:/etc/opendkim/KeyTable
+SigningTable            refile:/etc/opendkim/SigningTable
+EOS
+
+echo "default._domainkey.$domain $domain:default:/etc/opendkim/keys/default.private" > /etc/opendkim/KeyTable
+
+echo "*@$domain default._domainkey.$domain" > /etc/opendkim/SigningTable
+
+printf "127.0.0.1\nlocalhost\n$domain" > /etc/opendkim/TrustedHosts
+
+cat >> /etc/postfix/main.cf <<-EOS
+milter_protocol = 2
+milter_default_action = accept
+non_smtpd_milters = inet:localhost:8892
+EOS
+
+service opendkim restart
+service postfix restart
