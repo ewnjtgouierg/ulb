@@ -2,3 +2,4 @@
 <?
 
 passthru("cd /usr/local/bin && ln -f -s ".dirname(__FILE__)."/* .");
+passthru("chmod +x ".dirname(__FILE__)."/* .");
