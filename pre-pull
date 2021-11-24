@@ -1,0 +1,25 @@
+#!/usr/local/bin/php
+<?
+
+
+$dir = $_SERVER['PWD'];
+do
+	{
+		if (is_dir("$dir/.git")) break;
+	}
+while (strlen($dir = dirname($dir)) > 1);
+
+$ours = basename($dir) == 'Forca' || is_dir("$dir/Forca");
+
+if (!$ours) return;
+
+if (!file_exists("$dir/.unfinished-upgrade")) return;
+
+?>
+		Unfinished upgrade!
+		This is usually becaise an exception during some upgrade script execution.
+		Pull is blocked to avoid missing important fixes for the previous update.
+		Please run pp upgrade
+<?
+
+exit(1);

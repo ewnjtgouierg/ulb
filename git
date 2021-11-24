@@ -1,0 +1,5 @@
+if [ "$1" == "pull" ] ; then
+  /F/ulb/pre-pull || exit
+fi
+
+command git "$@"
