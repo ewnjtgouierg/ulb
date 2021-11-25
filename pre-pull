@@ -5,7 +5,7 @@
 $dir = $_SERVER['PWD'];
 do
 	{
-		if (is_dir("$dir/.git")) break;
+		if (file_exists("$dir/.git")) break;
 	}
 while (strlen($dir = dirname($dir)) > 1);
 
