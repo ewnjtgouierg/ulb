@@ -1,0 +1,23 @@
+#!/usr/local/bin/php
+<?
+
+if (count($_SERVER['argv']) != 3)
+	exit("\nUsage: mltst <to> <from>\n\n");
+
+list($void, $to, $from) = $_SERVER['argv'];
+
+$id = uniqid();
+
+passthru("cat << EOF | sendmail -t
+to: $to
+from: $from
+subject: test email #$id
+
+this is a test #$id
+This is line 2.
+Line 3.
+EOF", $retVal);
+
+var_dump($retVal);
+
+echo "\nid=$id\n";
