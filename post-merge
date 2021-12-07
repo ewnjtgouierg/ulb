@@ -3,7 +3,7 @@
 
 function cmd($cmd)
 	{
-		echo "\n$cmd";
+		echo "$cmd\n";
 		passthru($cmd);
 	}
 
