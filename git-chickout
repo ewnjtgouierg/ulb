@@ -1,0 +1,1 @@
+git checkout `git log | grep -F "$1" | cut -d " " -f1`
