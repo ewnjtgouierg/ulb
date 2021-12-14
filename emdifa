@@ -1,1 +1,23 @@
-find $1 | xargs md5sum | cut -d " " -f1 | sort | md5sum
+#!/usr/local/bin/php
+<?
+
+array_shift($_SERVER['argv']);
+while ($dir = array_shift($_SERVER['argv']))
+	if ($dir == '-')
+		$index ++;
+	else $dirs[(int)$index][] = "$dir/*";
+foreach ([0,1] as $index)
+	$md5[$index] = exec("find ".join(' ', $dirs[$index])." | xargs md5sum | cut -d ' ' -f1 | sort | md5sum");
+if ($md5[0] === $md5[1])
+	echo "OK!";
+else
+	echo "ERROR! md5-s DO NOT MATCH!";
+
+echo "\n";
+
+foreach ($md5 as $i => $_md5)
+	{
+		echo "\n".join(' ', $dirs[$i]);
+		echo "\n$_md5";
+		echo "\n";
+	}
