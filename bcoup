@@ -1,0 +1,6 @@
+set -x
+rootPartition=`mount | grep -F " on / " | cut -d " " -f1`
+mount -r -o remount /
+dd bs=4M $rootPartition | pv | gzip > /D/backup.`date +%F`.iso.gz
+mount -w -o remount /
+init 3
