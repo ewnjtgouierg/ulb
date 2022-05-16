@@ -1,3 +1,4 @@
+#!/bin/sh
 set -x
 rootPartition=`mount | grep -F " on / " | cut -d " " -f1`
 mount -r -o remount /
