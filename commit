@@ -11,7 +11,10 @@ array_shift($_SERVER['argv']);
 while ($arg = array_shift($_SERVER['argv']))
 	{
 		if (strpos($arg, '-') === 0 && count($_SERVER['argv']))
-			$options[trim($arg, '-')] = true;
+			{
+				$parts = explode('=', $arg, 2);
+				$options[ltrim($parts[0], '-')] = $parts[1] ?? true;
+			}
 		else
 			$notOptions[] = $arg;
 	}
@@ -24,6 +27,7 @@ while ($t = array_shift($notOptions))
 
 $git = "git";
 if ($options['common']) $git .= ' --git-dir=/.common';
+elseif ($options['gitDir']) $git .= " --git-dir=/$options[gitDir]";
 
 if ($paths) cmd("$git add \"".join('" "', $paths).'"');
 elseif (!$options['noAutoAdd'])
