@@ -26,5 +26,5 @@ if (file_exists($forcaStartPath = "$repoDir/Forca/.php"))
 		cmd("unset GIT_DIR && cd $repoDir && git init && git config core.filemode false");
 		cmd("unset GIT_DIR && cd $repoDir/Forca && git init && git config core.filemode false");
 		cmd("$hooksDir/post-checkout");
-		cmd("php $forcaStartPath upgrade/post-merge isForca=$isForca");
+		cmd("php $forcaStartPath upgrade isForca=$isForca");
 	}
