@@ -1,7 +1,15 @@
-#!/bin/sh
-set -x
-rootPartition=`mount | grep -F " on / " | cut -d " " -f1`
-mount -r -o remount /
-dd bs=4M $rootPartition | pv | gzip > /D/backup.`date +%F`.iso.gz
-mount -w -o remount /
-init 3
+#!/usr/local/bin/php
+<?
+
+$runLevel = exec('runlevel');
+$runLevel = preg_replace('~[^\d]~', '', $runLevel);
+if ($runLevel != 1)
+	{
+		exit("you've started the script at runlevel > 1. remount / ro won't work. use init 1 - not su.\n");
+	}
+
+$rootPartition = reset(explode(' ', exec('mount | grep -F " on / "')));
+$dstDir = '/E';
+echo "creating backup of $rootPartition in $dstDir\n\n";
+
+passthru("mount -r -o remount / && dd bs=4M if=$rootPartition | pv | gzip > $dstDir/backup.`date +%F`.iso.gz && mount -w -o remount / && init 3");
