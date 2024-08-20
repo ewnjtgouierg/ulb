@@ -16,7 +16,7 @@ list($void, $iso, $target) = $_SERVER['argv'];
 
 if (!$iso || !$target) exit("Usage: clone /path/to/iso.gz /dev/target\n");
 
-cmd("gunzip -c /E/backup.2024-08-11.iso.gz | pv | dd bs=4M of=$target", true);
+cmd("gunzip -c $iso | pv | dd bs=4M of=$target", true);
 cmd("e2fsck -f -y $target");
 cmd("tune2fs -U random $target");
 $uuid = cmd("lsblk -n -o UUID $target");
