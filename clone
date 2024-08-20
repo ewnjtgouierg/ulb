@@ -16,35 +16,37 @@ list($void, $iso, $target) = $_SERVER['argv'];
 
 if (!$iso || !$target) exit("Usage: clone /path/to/iso.gz /dev/target\n");
 
+$target = $targetByLetter = '/dev/' . cmd("lsblk -n -o name $target");
+
 cmd("gunzip -c $iso | pv | dd bs=4M of=$target", true);
-cmd("e2fsck -f -y $target");
-cmd("tune2fs -U random $target");
-$uuid = cmd("lsblk -n -o UUID $target");
+cmd("e2fsck -f -y $target", true);
+cmd("tune2fs -U random $target", true);
 
 $originalLabel = reset(explode('.', basename($iso)));
 $label = $originalLabel . '_copy';
-cmd("e2label $target $label");
+cmd("e2label $target $label", true);
+sleep('1');
 
 $target = "/dev/disk/by-label/$label";
 
 cmd("mount $target /B");
-cmd("sed -i 's/LABEL=$originalLabel /LABEL=$label /g' /B/etc/fstab");
 
+cmd("sed -i 's/LABEL=$originalLabel /LABEL=$label /g' /B/etc/fstab");
 cmd("update-grub");
 
 $grubCfgPath = "/boot/grub/grub.cfg";
 
-$targetByLetter = cmd("lsblk -n -o name $target");
-
+$uuid = cmd("lsblk -n -o UUID $target");
 fixUUID($grubCfgPath, $targetByLetter, $uuid);
 
 cmd("cp $grubCfgPath /B$grubCfgPath");
 
 cmd("boots", null, $ou);
+print_r($ou);
 
 foreach ($ou as $line)
 	{
-		if (preg_match("~^(\d+) : .*on $target~", $line, $m))
+		if (preg_match("~^(\d+) : .*on $targetByLetter~", $line, $m))
 			{
 				cmd("grub-reboot $m[1]");
 				cmd("reboot");
@@ -58,12 +60,17 @@ function fixUUID($path, $target, $uuid)
 
 		foreach ($lines as &$line)
 			{
-				if (preg_match("~on (?'name')/dev/[^\)]+)~", $line, $m))
-					$dev = $m['name'];
+				if (preg_match("~on (?'name'/dev/[^\)]+)~", $line, $m))
+					{
+						$dev = $m['name'];
+						echo "dev=$dev\n";
+					}
 				if ($dev == $target)
-					$line = preg_replace("~(root=UUID=)[0-9a-f-]+~", "$1$uuid", $line);
+					$line = preg_replace_callback("~(root=UUID=)[0-9a-f-]+~", function($m) use(&$uuid) {
+							return $m[1].$uuid;
+						}, $line);
 			}
 
-		file_put_contents($path, join("\n", $lines));
+		file_put_contents($path, join("", $lines));
 
 	}
