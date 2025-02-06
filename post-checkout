@@ -3,7 +3,10 @@
 
 $dir = $_SERVER['PWD'];
 if ($subdir = $_SERVER['GIT_PREFIX']) $dir = explode('/'.rtrim($subdir, '/'), $dir, 2)[0];
-if (basename($dir) !== 'Forca' && !is_dir("$dir/Forca")) return;
+if (!preg_match("~^/F/[^/]+~", $dir, $m)) return;
+if (!is_dir("$m[0]/Forca")) return;
+
 $u = $g = 'www-data';
 echo "setting ownership to $u:$g\n";
+
 exec("chown -R $u:$g $dir");
