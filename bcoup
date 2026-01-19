@@ -14,4 +14,4 @@ echo "creating backup of $rootPartition in $dstDir\n\n";
 
 $label = exec("lsblk -n -o LABEL $rootPartition");
 
-passthru("mount -r -o remount / && dd bs=4M if=$rootPartition | pv | gzip > $dstDir/$label.`date +%F`.iso.gz && mount -w -o remount / && init 3");
+passthru("mount -r -o remount / && dd bs=4M if=$rootPartition | pv | gzip > $dstDir/$label.`date +%F`.iso.gz && mount -w -o remount / && mount -a && init 3");
