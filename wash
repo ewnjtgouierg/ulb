@@ -1,0 +1,51 @@
+#!/bin/bash
+
+scriptPath=$1
+shift
+
+args=()
+declare -A options
+
+for arg in "$@"; do									# Parsing arguments
+    if [[ $arg =~ ^-([^=]+)(=(.+))?$ ]]; then
+		key=${BASH_REMATCH[1]}
+		val=${BASH_REMATCH[3]}
+		if [[ -z $val ]]; then
+			val=1
+		fi
+		options[$key]=$val
+	else
+		args+=($arg)
+	fi
+done
+
+dryRun=${options['n']}
+
+str1=$(declare -p args | tr -d '\n')
+str2=$(declare -p options | tr -d '\n')
+argsDeclarations=$( echo "$str1; $str2; " | sed -e 's/\//\\\//g')
+
+if [[ $dryRun ]]; then
+	echo '-------- dry run --------';
+	echo
+fi
+
+if [[ ${options['t']} ]]; then
+	echo 'test mode!'
+	echo "\$options['t']=${options[t]}"
+	test="PATH=/F/ulb/tbin:$PATH"
+fi
+
+sed -e "2s/.*/$argsDeclarations\0/" "$scriptPath" |
+{
+	if [[ $dryRun ]]; then
+		sed -E 's/(.*)#testy/\1/
+			T
+			s/"/\\"/g	# escaping "
+			s/.*/echo "DRY-RUN: \0"/
+			'
+	else
+		cat
+	fi
+} \
+| env $test ${SHELL:-/bin/bash} -s -- $@

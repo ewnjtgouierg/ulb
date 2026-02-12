@@ -1,0 +1,22 @@
+#!/bin/bash
+
+/bin/tee "$@"
+
+# 20% chance of corruption
+if (( RANDOM % 5 == 0 )); then
+
+	echo -n "tee 4/5: adding extra to " >&2
+
+	str="corruption_junk"
+
+	if (( RANDOM % 2 == 0 )); then
+    	target="${@: -1}" # the last argument
+		echo $target >&2
+	    echo $str >> "$target"
+	else
+	    echo 'stdout' >&2 
+	    echo $str
+	fi
+else
+	echo "tee 4/5: ok" >&2
+fi
