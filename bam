@@ -1,0 +1,9 @@
+#!/bin/bash
+
+umount -f -l /B
+mount -U 9F4F-28D0 /B
+
+for path in /B/DCIM/*GOPRO; do
+	name=$(basename $path)
+	bc $path camera/$name $@
+done

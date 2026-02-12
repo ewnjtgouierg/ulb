@@ -1,0 +1,6 @@
+#!/bin/bash
+
+umount -f -l /B
+adbfs -o allow_other /B
+
+bc /B/storage/emulated/0/DCIM/Camera phone $@

@@ -1,0 +1,53 @@
+#!/F/ulb/wash
+
+src=${args[0]}
+deviceName="${args[1]}" # phone/camera
+
+subdir="photo/$(date +%d.%m.%Y)${options['dstPostfix']}/$deviceName"
+
+dst1="/D/$subdir"
+dst2="/E/$subdir"
+
+echo "Transfer of $deviceName files from $src to $dst1, $dst2"
+
+if [ $(/bin/ls "$src" | wc -l) == "0" ]; then
+	echo -e "\n$src is empty";
+	exit 1;
+fi
+
+mkdir -p $dst1 $dst2 #testy
+
+# copy
+
+for path in "$src"/*; do
+	fname="${path##*/}" # same as basename $path, but built-in
+	cat "$path" | tee "$dst1/$fname" > "$dst2/$fname" #testy
+done
+
+# set mtime
+
+for path in "$src"/*; do
+	fname="${path##*/}"
+	touch "$dst1/$fname" -r "$path" #testy
+	touch "$dst2/$fname" -r "$path" #testy
+done
+
+sync #testy
+
+# verify
+
+for path in "$src"/*; do
+	fname="${path##*/}"
+	cmp "$src/$fname" "$dst1/$fname" || errors=1 #testy
+	cmp "$dst1/$fname" "$dst2/$fname" || errors=1 #testy
+done
+
+
+if [[ $errors ]]; then
+	echo "Copy verification failed. Not deleting $src"
+	exit 1
+fi
+
+echo "ok to rm -rf $src"
+
+#rm -rf "$src" #testy
