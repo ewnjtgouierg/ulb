@@ -6,6 +6,10 @@ if ($subdir = $_SERVER['GIT_PREFIX']) $dir = explode('/'.rtrim($subdir, '/'), $d
 if (!preg_match("~^/F/[^/]+~", $dir, $m)) return;
 if (!is_dir("$m[0]/Forca")) return;
 
+if (is_dir(trim(exec("git rev-parse --git-path rebase-merge")))
+		|| is_dir(trim(exec("git rev-parse --git-path rebase-apply"))))
+	return;
+
 $u = $g = 'www-data';
 echo "setting ownership to $u:$g\n";
 
