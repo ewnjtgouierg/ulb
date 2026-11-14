@@ -42,6 +42,8 @@ exec("git add $subdir", $output1);
 
 echo join("\n", $output1);
 
-exec("git commit -m \"$message\"", $output2);
+setlocale(LC_CTYPE, 'C.UTF-8') or exit('install C.UTF-8');
+
+exec("git commit -m ".escapeshellarg($message), $output2);
 
 echo join("\n", $output2);

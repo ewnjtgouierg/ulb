@@ -37,4 +37,6 @@ elseif (!$options['noAutoAdd'])
 		else cmd("$git add -A");
 	}
 
-cmd("$git commit -m \"$msg\"");
+setlocale(LC_CTYPE, 'C.UTF-8') or exit('install C.UTF-8');
+
+cmd("$git commit -m ".escapeshellarg($msg));
